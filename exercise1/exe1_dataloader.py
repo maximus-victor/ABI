@@ -1,6 +1,3 @@
-from lib2to3.pgen2 import token
-from lib2to3.pgen2.token import tok_name
-from lib2to3.pgen2.tokenize import tokenize
 from torch.utils.data import DataLoader, Dataset
 import torch
 from transformers import BertTokenizer, BertModel
@@ -30,7 +27,7 @@ class TokenSeqDataset(Dataset):
         return model
 
     def __getitem__(self, index: int) -> Tuple[torch.Tensor, int]:
-        key = list(self.data.keys())[index]
+        key = self.keys[index]
         label = self.labels[key]
         seq = self.data[key][:self.max_num_residues]
         tokens = self.tokenize(seq)
@@ -42,23 +39,25 @@ class TokenSeqDataset(Dataset):
         return len(self.data)
 
     def tokenize(self, seq: str) -> Tuple[torch.Tensor, torch.Tensor]:
-        seq = " ".join(seq)
+        seq = [" ".join(seq)]
         tokenized = self.tokenizer(text=seq, padding='max_length', max_length=self.max_num_residues+2, add_special_tokens=True, return_tensors='pt') #+2 seems a bit random but works
+
         return tokenized['input_ids'], tokenized['attention_mask']
 
     def embedd(self, tokens: torch.Tensor, attention_mask: torch.Tensor) -> torch.Tensor:
         with torch.no_grad():
-            embedding = self.protbert(input_ids=tokens, attention_mask=attention_mask)[0]
-        seq_len = attention_mask.sum()
-        embedding = embedding[:, 1 : seq_len - 1]
+            embedding = self.protbert.forward(input_ids=tokens, attention_mask=attention_mask)[0]
+
         embedding = torch.mean(embedding, 1)
         embedding = torch.squeeze(embedding)
+
         return embedding
 
 
     def parse_fasta_input(self, input_file: Path) -> Dict[str, str]:
         fasta = Fasta(str(input_file))
         self.data = {key:str(fasta[key]) for key in fasta.keys()}
+        self.keys = list(fasta.keys())
         return self.data
 
 
@@ -78,7 +77,7 @@ def get_dataloader(fasta_path: Path, labels_dict: Dict[str, int], batch_size: in
         max_num_residues=max_num_residues, 
         protbert_cache=protbert_cache, 
         device=device)
-
+    
     return DataLoader(dataset=dataset, 
         batch_size=batch_size, 
         shuffle=True, 

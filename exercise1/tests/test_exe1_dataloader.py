@@ -278,7 +278,8 @@ def test_embedding(token_seq_dataset, token_data, embedding_data):
             for idx, (tok, att) in tokens.items():
                 student_embeddings[idx] = dataset.embedd(tok, att)
 
-        except Exception:
+        except Exception as e:
+            print(e)
             raise AssertionError('Error in exe1_dataloader.TokenSeqDataset.embedd().') from None
 
         try:
