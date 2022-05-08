@@ -4,8 +4,6 @@ from transformers import BertTokenizer, BertModel
 from pathlib import Path
 from pyfaidx import Fasta
 from typing import Dict, Tuple, List
-import random
-
 
 class TokenSeqDataset(Dataset):
     def __init__(self, fasta_path: Path, labels_dict: Dict[str, int], max_num_residues: int, protbert_cache: Path, device: torch.device):
@@ -27,6 +25,7 @@ class TokenSeqDataset(Dataset):
         return model
 
     def __getitem__(self, index: int) -> Tuple[torch.Tensor, int]:
+        print(index)
         key = self.keys[index]
         label = self.labels[key]
         seq = self.data[key][:self.max_num_residues]
@@ -70,7 +69,6 @@ def collate_paired_sequences(data: List[Tuple[torch.Tensor, int]]) -> Tuple[torc
 
 def get_dataloader(fasta_path: Path, labels_dict: Dict[str, int], batch_size: int, max_num_residues: int,
                    protbert_cache: Path, device: torch.device, seed: int) -> DataLoader:
-    random.seed(seed)
     dataset = TokenSeqDataset(
         fasta_path=fasta_path, 
         labels_dict=labels_dict, 
@@ -78,6 +76,7 @@ def get_dataloader(fasta_path: Path, labels_dict: Dict[str, int], batch_size: in
         protbert_cache=protbert_cache, 
         device=device)
     
+    torch.manual_seed(seed)
     return DataLoader(dataset=dataset, 
         batch_size=batch_size, 
         shuffle=True, 
