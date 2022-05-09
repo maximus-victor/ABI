@@ -273,13 +273,11 @@ def test_tokenize_x2(test_tokenize):
 def test_embedding(token_seq_dataset, token_data, embedding_data):
     for dataset, tokens, sol_embeddings in zip(token_seq_dataset, token_data, embedding_data):
         try:
-            test = dataset.embedd(*list(tokens.items())[0][1])
             student_embeddings = {}
             for idx, (tok, att) in tokens.items():
                 student_embeddings[idx] = dataset.embedd(tok, att)
 
         except Exception as e:
-            print(e)
             raise AssertionError('Error in exe1_dataloader.TokenSeqDataset.embedd().') from None
 
         try:

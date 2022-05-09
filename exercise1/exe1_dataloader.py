@@ -25,7 +25,6 @@ class TokenSeqDataset(Dataset):
         return model
 
     def __getitem__(self, index: int) -> Tuple[torch.Tensor, int]:
-        print(index)
         key = self.keys[index]
         label = self.labels[key]
         seq = self.data[key][:self.max_num_residues]
@@ -39,7 +38,7 @@ class TokenSeqDataset(Dataset):
 
     def tokenize(self, seq: str) -> Tuple[torch.Tensor, torch.Tensor]:
         seq = [" ".join(seq)]
-        tokenized = self.tokenizer(text=seq, padding='max_length', max_length=self.max_num_residues+2, add_special_tokens=True, return_tensors='pt') #+2 seems a bit random but works
+        tokenized = self.tokenizer(text=seq, padding='max_length', max_length=self.max_num_residues+2, add_special_tokens=True, return_tensors='pt') 
 
         return tokenized['input_ids'], tokenized['attention_mask']
 
@@ -69,6 +68,8 @@ def collate_paired_sequences(data: List[Tuple[torch.Tensor, int]]) -> Tuple[torc
 
 def get_dataloader(fasta_path: Path, labels_dict: Dict[str, int], batch_size: int, max_num_residues: int,
                    protbert_cache: Path, device: torch.device, seed: int) -> DataLoader:
+    
+    torch.manual_seed(seed)
     dataset = TokenSeqDataset(
         fasta_path=fasta_path, 
         labels_dict=labels_dict, 
@@ -76,7 +77,6 @@ def get_dataloader(fasta_path: Path, labels_dict: Dict[str, int], batch_size: in
         protbert_cache=protbert_cache, 
         device=device)
     
-    torch.manual_seed(seed)
     return DataLoader(dataset=dataset, 
         batch_size=batch_size, 
         shuffle=True, 
