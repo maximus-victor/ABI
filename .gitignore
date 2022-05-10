@@ -1,3 +1,4 @@
 **/__pycache__
 .gitignore
 .idea/
+.DS_Store
