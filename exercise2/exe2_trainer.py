@@ -41,8 +41,21 @@ class Trainer:
         self.save_model()
 
     def validate(self, val_dataloader):
-        # TODO
-        return None
+        self.model.eval()
+        running_loss, num_seqs = 0.0, 0
+        for i, data in enumerate(val_dataloader):
+            inputs, labels = data
+            labels = labels.to(self.device)
+
+            outputs = self.model(inputs)
+
+            loss = self.bce_with_logits(outputs, labels)
+            num_seqs += len(labels)
+
+            running_loss += loss.item()
+
+        return running_loss / num_seqs
+
 
     def save_model(self):
         if self.save_path:
