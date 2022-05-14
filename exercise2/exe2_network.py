@@ -7,7 +7,7 @@ class Model(nn.Module):
         super(Model, self).__init__()
 
         self.network = nn.Sequential(
-            nn.Linear(1024, 32),
+            nn.Linear(1024, 128),
             nn.Linear(128, 64),
             nn.Linear(64, 1)
         )
