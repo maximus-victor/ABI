@@ -3,7 +3,9 @@ from torch import nn
 import torch.optim as optim
 from typing import Any
 from tqdm.auto import tqdm
-
+from exe2_network import Model
+import exe1_dataloader 
+import json
 
 class Trainer:
     def __init__(self, model: Any, device: torch.device, save_path: str = 'model.pth'):
@@ -60,3 +62,14 @@ class Trainer:
     def save_model(self):
         if self.save_path:
             torch.save(self.model.state_dict(), self.save_path)
+
+
+with open("data/train_lbl.json", 'r') as f:
+    labels = json.loads(f.read())
+
+
+net = Model()
+train_dataloader = exe1_dataloader.get_dataloader("data/train_seqs.fasta", labels, 16, 1024, "/home/user/Downloads/protbert_weights", torch.device('cpu'), 42)
+
+trainer = Trainer(net, torch.device('cpu'))
+trainer.train(train_dataloader, 10)
