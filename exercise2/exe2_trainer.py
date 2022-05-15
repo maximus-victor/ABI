@@ -8,6 +8,7 @@ import json
 import h5py
 from exe2_network import Model
 from pathlib import Path
+from torch.nn import BCELoss
 
 
 # Define a dataset tailored to the data that should be used
@@ -64,13 +65,13 @@ class Trainer:
 
                 outputs = self.model(inputs)
 
-                loss = self.bce_with_logits(outputs, labels.float())
+                loss = self.bce_with_logits(outputs.float(), labels.float())
                 loss.backward()
                 self.optimizer.step()
                 num_seqs += len(labels)
 
                 running_loss += loss.item()
-            print(f'[{epoch + 1}] loss: {running_loss / num_seqs:.3f}')
+            print(f'[{epoch + 1}] loss: {running_loss / num_seqs:.5f}')
 
         print('Finished Training')
         self.save_model()
@@ -97,6 +98,32 @@ class Trainer:
             torch.save(self.model.state_dict(), self.save_path)
 
 
+def test_model():
+    print("Testing: ")
+    with h5py.File('tests/data/val_dataloader.h5') as hf:
+        val_dataloader = [(torch.from_numpy(data['emb'][:]), torch.from_numpy(data['lbl'][:]))
+                for data_idx, data in hf['first'].items()]
+
+
+    model = Model()
+    model.load_state_dict(torch.load('model.pth'))
+    model.eval()
+
+    running_loss, num_seqs = 0.0, 0
+
+    with torch.no_grad():
+        for i, data in enumerate(val_dataloader, 0):
+            inputs, labels = data
+            outputs = model.predict(inputs)
+            loss = BCELoss()(outputs.float(), labels.float())
+
+            num_seqs += len(labels)
+            running_loss += loss.item()
+
+    print(running_loss / num_seqs)
+
+
+
 
 dataset = FancyDataset(Path("data/embeddings.h5"), Path("data/train_lbl.json"))
 train_dataloader = DataLoader(dataset, batch_size=16, shuffle=True)
@@ -105,3 +132,5 @@ net = Model()
 
 trainer = Trainer(net, torch.device('cpu'))
 trainer.train(train_dataloader, 10)
+
+test_model()

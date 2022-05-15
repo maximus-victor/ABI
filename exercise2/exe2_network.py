@@ -7,17 +7,20 @@ class Model(nn.Module):
         super(Model, self).__init__()
 
         self.network = nn.Sequential(
-            nn.Linear(1024, 128),
+            nn.Linear(1024, 512),
             nn.LeakyReLU(),
-            nn.Linear(128, 45),
+            nn.Linear(512, 128),
             nn.SELU(),
-            nn.Linear(45, 20),
+            nn.Linear(128, 32),
             nn.GELU(),
-            nn.Linear(20, 1)
+            nn.Linear(32, 1)
         )
+
+        self.sigmoid = nn.Sigmoid()
+
 
     def forward(self, x: torch.Tensor):
         return self.network(x)
 
     def predict(self, x: torch.Tensor):
-        return nn.Sigmoid(self.network(x))
+        return self.sigmoid(self.network(x))
