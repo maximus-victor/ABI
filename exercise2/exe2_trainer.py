@@ -109,24 +109,29 @@ def test_model():
     model.load_state_dict(torch.load('model.pth'))
     model.eval()
 
-    running_loss, num_seqs = 0.0, 0
+    running_loss, num_seqs, correct = 0.0, 0, 0
 
     with torch.no_grad():
         for i, data in enumerate(val_dataloader, 0):
             inputs, labels = data
+
             outputs = model.predict(inputs)
             loss = BCELoss()(outputs.float(), labels.float())
 
             num_seqs += len(labels)
             running_loss += loss.item()
 
-    print(running_loss / num_seqs)
+            outputs = (outputs>0.5).float()
+            correct += (outputs == labels).float().sum()
+
+    print("Loss", running_loss / num_seqs)
+    print("Accuracy", (correct / num_seqs).item())
 
 
 
 
 dataset = FancyDataset(Path("data/embeddings.h5"), Path("data/train_lbl.json"))
-train_dataloader = DataLoader(dataset, batch_size=16, shuffle=True)
+train_dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
 
 net = Model()
 
