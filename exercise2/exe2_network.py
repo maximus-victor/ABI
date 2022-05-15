@@ -8,8 +8,12 @@ class Model(nn.Module):
 
         self.network = nn.Sequential(
             nn.Linear(1024, 128),
-            nn.Linear(128, 64),
-            nn.Linear(64, 1)
+            nn.LeakyReLU(),
+            nn.Linear(128, 45),
+            nn.SELU(),
+            nn.Linear(45, 20),
+            nn.GELU(),
+            nn.Linear(20, 1)
         )
 
     def forward(self, x: torch.Tensor):

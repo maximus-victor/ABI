@@ -1,12 +1,44 @@
 import torch
 from torch import nn
 import torch.optim as optim
-from typing import Any
+from torch.utils.data import DataLoader, Dataset
+from typing import Any, Dict, Tuple, List
 from tqdm.auto import tqdm
-from exe2_network import Model
-import exe1_dataloader 
 import json
+import h5py
+from exe2_network import Model
+from pathlib import Path
 
+
+# Define a dataset tailored to the data that should be used
+class FancyDataset(Dataset):
+    # Dataset ... map-style dataset
+    def __init__(self, h5_path: Path, json_path: Path):
+        self.data = h5py.File(h5_path, 'r')
+        # use as "index map"
+        self.ids_list = list(self.data.keys())
+        self.json_dict = FancyDataset.load_json(json_path)
+
+
+    # return the number of elements in the dataset
+    def __len__(self):
+        return len(self.ids_list)
+
+    # return item at specific index
+    def __getitem__(self, idx: int):
+        identifier = self.ids_list[idx]
+        idx_element = torch.from_numpy(self.data[identifier][:])
+        idx_json = self.json_dict[identifier]
+        return idx_element, idx_json
+
+
+    @staticmethod
+    def load_json(json_path):
+        with open(json_path, 'r') as file:
+            return json.load(file)
+
+
+#@title Trainer
 class Trainer:
     def __init__(self, model: Any, device: torch.device, save_path: str = 'model.pth'):
         super(Trainer, self).__init__()
@@ -25,13 +57,14 @@ class Trainer:
             running_loss, num_seqs = 0.0, 0
             for i, data in enumerate(tqdm(dataloader, desc='Epoch Progress', position=0, leave=True, ascii=True), 0):
                 inputs, labels = data
-                labels = labels.to(self.device)
+                inputs = inputs.to(self.device)
+                labels = labels.view(-1, 1).to(self.device)
 
                 self.optimizer.zero_grad()
 
                 outputs = self.model(inputs)
 
-                loss = self.bce_with_logits(outputs, labels)
+                loss = self.bce_with_logits(outputs, labels.float())
                 loss.backward()
                 self.optimizer.step()
                 num_seqs += len(labels)
@@ -64,12 +97,11 @@ class Trainer:
             torch.save(self.model.state_dict(), self.save_path)
 
 
-with open("data/train_lbl.json", 'r') as f:
-    labels = json.loads(f.read())
 
+dataset = FancyDataset(Path("data/embeddings.h5"), Path("data/train_lbl.json"))
+train_dataloader = DataLoader(dataset, batch_size=16, shuffle=True)
 
 net = Model()
-train_dataloader = exe1_dataloader.get_dataloader("data/train_seqs.fasta", labels, 16, 1024, "/home/user/Downloads/protbert_weights", torch.device('cpu'), 42)
 
 trainer = Trainer(net, torch.device('cpu'))
 trainer.train(train_dataloader, 10)
