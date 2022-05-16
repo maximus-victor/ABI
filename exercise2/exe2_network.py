@@ -7,13 +7,7 @@ class Model(nn.Module):
         super(Model, self).__init__()
 
         self.network = nn.Sequential(
-            nn.Linear(1024, 512),
-            nn.LeakyReLU(),
-            nn.Linear(512, 128),
-            nn.SELU(),
-            nn.Linear(128, 32),
-            nn.GELU(),
-            nn.Linear(32, 1)
+            nn.Linear(1024, 1)
         )
 
         self.sigmoid = nn.Sigmoid()

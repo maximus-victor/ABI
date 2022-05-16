@@ -9,7 +9,7 @@ import h5py
 from exe2_network import Model
 from pathlib import Path
 from torch.nn import BCELoss
-
+from torch.utils.data.sampler import WeightedRandomSampler
 
 # Define a dataset tailored to the data that should be used
 class FancyDataset(Dataset):
@@ -49,13 +49,13 @@ class Trainer:
 
         self.sigmoid = nn.Sigmoid()
         self.bce_with_logits = nn.BCEWithLogitsLoss()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=0.001)
+        self.optimizer = optim.SGD(self.model.parameters(), lr=1e-05)
 
     def train(self, dataloader, num_epoch: int):
         self.model.train()
         for epoch in tqdm(range(num_epoch), desc='Train Epoch', position=0, leave=True, ascii=True):
             running_loss, num_seqs, correct = 0.0, 0, 0
-            for i, data in enumerate(tqdm(dataloader, desc='Epoch Progress', position=0, leave=True, ascii=True), 0):
+            for i, data in enumerate(tqdm(list(dataloader), desc='Epoch Progress', position=0, leave=True, ascii=True), 0):
                 
                 inputs, labels = data
                 inputs = inputs.to(self.device)
@@ -71,13 +71,46 @@ class Trainer:
                 num_seqs += len(labels)
 
                 running_loss += loss.item()
+                
+               # print(nn.Sigmoid()(outputs))
+                #print(nn.Sigmoid()(outputs))
                 outputs = (nn.Sigmoid()(outputs)>=0.5).float()
+                
+                #print(labels)
+                #print(outputs == labels)
+                #break
+
                 correct += (outputs == labels).float().sum()
 
             print(f'[{epoch + 1}] loss: {running_loss / num_seqs:.5f}\tacc: {correct/num_seqs}')
 
         print('Finished Training')
         self.save_model()
+        self.validate(dataloader)
+
+
+    def validate(self, val_dataloader):
+        self.model.eval()
+        running_loss, num_seqs, correct = 0.0, 0, 0
+        for i, data in enumerate(val_dataloader):
+            inputs, labels = data
+            labels = labels.view(-1, 1).to(self.device)
+
+            outputs = self.model(inputs)
+
+            loss = self.bce_with_logits(outputs.float(), labels.float())
+            num_seqs += len(labels)
+
+            running_loss += loss.item()
+
+            outputs = (nn.Sigmoid()(outputs)>=0.5).float()
+            correct += (outputs == labels).float().sum()
+
+
+
+        print(f"loss: {running_loss / num_seqs}\tacc: {correct/num_seqs}")
+
+
 
 
     def save_model(self):
@@ -101,6 +134,7 @@ def test_model():
     with torch.no_grad():
         for i, data in enumerate(val_dataloader, 0):
             inputs, labels = data
+            
 
             outputs = model.predict(inputs)
             loss = BCELoss()(outputs.float(), labels.float())
@@ -119,11 +153,20 @@ def test_model():
 
 
 dataset = FancyDataset(Path("data/embeddings.h5"), Path("data/train_lbl.json"))
-train_dataloader = DataLoader(dataset, batch_size=16, shuffle=True)
+
+class_counts = [5883, 12767]
+labels = [dataset.json_dict[x] for x in dataset.ids_list] #corresponding labels of samples
+num_samples = len(labels)
+
+class_weights = [1/class_counts[i] for i in range(len(class_counts))]
+weights = [class_weights[labels[i]] for i in range(int(num_samples))]
+sampler = WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
+
+train_dataloader = DataLoader(dataset, batch_size=32, sampler=sampler)#, shuffle=True)
 
 net = Model()
 
 trainer = Trainer(net, torch.device('cpu'))
-trainer.train(train_dataloader, 10)
+trainer.train(train_dataloader, 100)
 
 test_model()
