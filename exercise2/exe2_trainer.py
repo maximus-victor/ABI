@@ -32,7 +32,6 @@ class FancyDataset(Dataset):
         idx_json = self.json_dict[identifier]
         return idx_element, idx_json
 
-
     @staticmethod
     def load_json(json_path):
         with open(json_path, 'r') as file:
@@ -55,8 +54,9 @@ class Trainer:
     def train(self, dataloader, num_epoch: int):
         self.model.train()
         for epoch in tqdm(range(num_epoch), desc='Train Epoch', position=0, leave=True, ascii=True):
-            running_loss, num_seqs = 0.0, 0
+            running_loss, num_seqs, correct = 0.0, 0, 0
             for i, data in enumerate(tqdm(dataloader, desc='Epoch Progress', position=0, leave=True, ascii=True), 0):
+                
                 inputs, labels = data
                 inputs = inputs.to(self.device)
                 labels = labels.view(-1, 1).to(self.device)
@@ -71,26 +71,13 @@ class Trainer:
                 num_seqs += len(labels)
 
                 running_loss += loss.item()
-            print(f'[{epoch + 1}] loss: {running_loss / num_seqs:.5f}')
+                outputs = (nn.Sigmoid()(outputs)>=0.5).float()
+                correct += (outputs == labels).float().sum()
+
+            print(f'[{epoch + 1}] loss: {running_loss / num_seqs:.5f}\tacc: {correct/num_seqs}')
 
         print('Finished Training')
         self.save_model()
-
-    def validate(self, val_dataloader):
-        self.model.eval()
-        running_loss, num_seqs = 0.0, 0
-        for i, data in enumerate(val_dataloader):
-            inputs, labels = data
-            labels = labels.to(self.device)
-
-            outputs = self.model(inputs)
-
-            loss = self.bce_with_logits(outputs, labels)
-            num_seqs += len(labels)
-
-            running_loss += loss.item()
-
-        return running_loss / num_seqs
 
 
     def save_model(self):
@@ -121,6 +108,7 @@ def test_model():
             num_seqs += len(labels)
             running_loss += loss.item()
 
+
             outputs = (outputs>0.5).float()
             correct += (outputs == labels).float().sum()
 
@@ -131,7 +119,7 @@ def test_model():
 
 
 dataset = FancyDataset(Path("data/embeddings.h5"), Path("data/train_lbl.json"))
-train_dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
+train_dataloader = DataLoader(dataset, batch_size=16, shuffle=True)
 
 net = Model()
 
