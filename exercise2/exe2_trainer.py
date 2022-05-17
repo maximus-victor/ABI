@@ -10,18 +10,21 @@ from exe2_network import Model
 from pathlib import Path
 from torch.nn import BCELoss
 from torch.utils.data.sampler import WeightedRandomSampler
+import random
 
 # Define a dataset tailored to the data that should be used
+
+
 class FancyDataset(Dataset):
     # Dataset ... map-style dataset
-    def __init__(self, h5_path: Path, json_path: Path):
+    def __init__(self, h5_path: Path, json_path: Path, keys):
         self.data = h5py.File(h5_path, 'r')
         # use as "index map"
-        self.ids_list = list(self.data.keys())
+        self.ids_list = keys
         self.json_dict = FancyDataset.load_json(json_path)
 
-
     # return the number of elements in the dataset
+
     def __len__(self):
         return len(self.ids_list)
 
@@ -38,7 +41,7 @@ class FancyDataset(Dataset):
             return json.load(file)
 
 
-#@title Trainer
+# @title Trainer
 class Trainer:
     def __init__(self, model: Any, device: torch.device, save_path: str = 'model.pth'):
         super(Trainer, self).__init__()
@@ -49,14 +52,14 @@ class Trainer:
 
         self.sigmoid = nn.Sigmoid()
         self.bce_with_logits = nn.BCEWithLogitsLoss()
-        self.optimizer = optim.SGD(self.model.parameters(), lr=1e-05)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=1e-05)
 
     def train(self, dataloader, num_epoch: int):
         self.model.train()
         for epoch in tqdm(range(num_epoch), desc='Train Epoch', position=0, leave=True, ascii=True):
             running_loss, num_seqs, correct = 0.0, 0, 0
             for i, data in enumerate(tqdm(list(dataloader), desc='Epoch Progress', position=0, leave=True, ascii=True), 0):
-                
+
                 inputs, labels = data
                 inputs = inputs.to(self.device)
                 labels = labels.view(-1, 1).to(self.device)
@@ -71,23 +74,22 @@ class Trainer:
                 num_seqs += len(labels)
 
                 running_loss += loss.item()
-                
+
                # print(nn.Sigmoid()(outputs))
-                #print(nn.Sigmoid()(outputs))
-                outputs = (nn.Sigmoid()(outputs)>=0.5).float()
-                
-                #print(labels)
+                # print(nn.Sigmoid()(outputs))
+                outputs = (nn.Sigmoid()(outputs) >= 0.5).float()
+
+                # print(labels)
                 #print(outputs == labels)
-                #break
+                # break
 
                 correct += (outputs == labels).float().sum()
 
-            print(f'[{epoch + 1}] loss: {running_loss / num_seqs:.5f}\tacc: {correct/num_seqs}')
+            print(
+                f'[{epoch + 1}] loss: {running_loss / num_seqs:.5f}\tacc: {correct/num_seqs}')
 
         print('Finished Training')
         self.save_model()
-        self.validate(dataloader)
-
 
     def validate(self, val_dataloader):
         self.model.eval()
@@ -103,15 +105,10 @@ class Trainer:
 
             running_loss += loss.item()
 
-            outputs = (nn.Sigmoid()(outputs)>=0.5).float()
+            outputs = (nn.Sigmoid()(outputs) >= 0.5).float()
             correct += (outputs == labels).float().sum()
 
-
-
         print(f"loss: {running_loss / num_seqs}\tacc: {correct/num_seqs}")
-
-
-
 
     def save_model(self):
         if self.save_path:
@@ -122,8 +119,7 @@ def test_model():
     print("Testing: ")
     with h5py.File('tests/data/val_dataloader.h5') as hf:
         val_dataloader = [(torch.from_numpy(data['emb'][:]), torch.from_numpy(data['lbl'][:]))
-                for data_idx, data in hf['first'].items()]
-
+                          for data_idx, data in hf['first'].items()]
 
     model = Model()
     model.load_state_dict(torch.load('model.pth'))
@@ -134,7 +130,6 @@ def test_model():
     with torch.no_grad():
         for i, data in enumerate(val_dataloader, 0):
             inputs, labels = data
-            
 
             outputs = model.predict(inputs)
             loss = BCELoss()(outputs.float(), labels.float())
@@ -142,8 +137,7 @@ def test_model():
             num_seqs += len(labels)
             running_loss += loss.item()
 
-
-            outputs = (outputs>0.5).float()
+            outputs = (outputs >= 0.5).float()
             correct += (outputs == labels).float().sum()
 
     print("Loss", running_loss / num_seqs)
@@ -152,21 +146,28 @@ def test_model():
 
 
 
-dataset = FancyDataset(Path("data/embeddings.h5"), Path("data/train_lbl.json"))
+keys = list(h5py.File(Path("data/embeddings.h5"), 'r').keys())
+random.shuffle(keys)
+train_size = int(0.7 * len(keys))
+
+train_dataset = FancyDataset(Path("data/embeddings.h5"), Path("data/train_lbl.json"), keys[:train_size])
+test_dataset = FancyDataset(Path("data/embeddings.h5"), Path("data/train_lbl.json"), keys[train_size:])
 
 class_counts = [5883, 12767]
-labels = [dataset.json_dict[x] for x in dataset.ids_list] #corresponding labels of samples
+labels = [train_dataset.json_dict[x]
+          for x in train_dataset.ids_list]  # corresponding labels of samples
 num_samples = len(labels)
 
 class_weights = [1/class_counts[i] for i in range(len(class_counts))]
 weights = [class_weights[labels[i]] for i in range(int(num_samples))]
 sampler = WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 
-train_dataloader = DataLoader(dataset, batch_size=32, sampler=sampler)#, shuffle=True)
+train_dataloader = DataLoader(
+    train_dataset, batch_size=8, sampler=sampler)  # , shuffle=True)
+test_dataloader = DataLoader(test_dataset)  # , shuffle=True)
 
 net = Model()
 
 trainer = Trainer(net, torch.device('cpu'))
-trainer.train(train_dataloader, 100)
-
-test_model()
+trainer.train(train_dataloader, 20)
+trainer.validate(test_dataloader)
