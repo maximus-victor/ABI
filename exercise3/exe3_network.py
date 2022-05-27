@@ -3,23 +3,27 @@ from torch import nn
 
 
 class Model(nn.Module):
-    def __init__(self, input_dim: int = 1024, output_dim: int = 1):
+    def __init__(self, trial, input_dim: int = 1024, output_dim: int = 1):
         super(Model, self).__init__()
 
-        # TODO add your network specification here
+        n_layers = trial.suggest_int("n_layers", 1, 4)
+        layers = []
 
-        further_dims = output_dim or torch.randint(50, 300, (input_dim - 1,)).tolist()
-        in_dims = [45] + further_dims
-        out_dims = further_dims + [1]
 
-        linear_layers = [nn.Linear(in_dim, out_dim) for in_dim, out_dim in zip(in_dims, out_dims)]
-        activations = [nn.LeakyReLU() for _ in range(input_dim - 1)]
+        in_features = input_dim
+        for i in range(n_layers):
+            out_features = trial.suggest_int("n_units_l{}".format(i), 4, 512)
+            layers.append(nn.Linear(in_features, out_features))
+            uf = trial.suggest_categorical("unit_func_{}".format(i), ["ReLU", "LeakyReLU", "SELU"])
+            layers.append(getattr(nn, uf)())
+            p = trial.suggest_float("dropout_l{}".format(i), 0.2, 0.5)
+            layers.append(nn.Dropout(p))
 
-        nn_layers = [None] * (len(linear_layers) + len(activations))
-        nn_layers[::2], nn_layers[1::2] = linear_layers, activations
+            in_features = out_features
+        layers.append(nn.Linear(in_features, output_dim))
 
         self.network = nn.Sequential(
-            *nn_layers
+            *layers
         )
 
         # Play around with some layers https://pytorch.org/docs/stable/nn.html
@@ -28,7 +32,7 @@ class Model(nn.Module):
 
         # TODO add your model config here which are essential for your initialisation
         #  -> the args in __init__()
-        self.config = {'input_dim': input_dim, 'output_dim': output_dim}
+        self.config = {'trial': trial, 'input_dim': input_dim, 'output_dim': output_dim}
 
     def forward(self, x):
         return self.network(x)
