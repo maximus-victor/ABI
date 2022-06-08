@@ -14,7 +14,7 @@ library(tximportData)
 library(biomaRt)
 
 ### DESeq2 ###
-quant_dir <- "." # adjust --> parent directory in which the result folders of kallisto are stored
+quant_dir <- "/home/user/Downloads/HepG2/out/" # adjust --> parent directory in which the result folders of kallisto are stored
 samples <- list.files(quant_dir)
 
 samples <- data.frame(project = "HepG2", 
@@ -35,4 +35,18 @@ dds <- DESeqDataSetFromTximport(txi, colData = samples, design = ~ condition)
 dds <- dds[ rowSums(counts(dds)) > 1, ]
 dds <- DESeq(dds)
 
-#continue here...
+
+#get results
+res <- results(dds, contrast=c("condition", "CT", "OE"))
+
+#lfcShrink
+res2 = lfcShrink(dds, contrast=c("condition", "CT", "OE"), type="normal")
+
+#dispersion plot (a)
+plotDispEsts(dds)
+
+#highest log-fold change
+print(res[res$log2FoldChange == max(res$log2FoldChange),])
+# or absolute?
+print(res[res$log2FoldChange == max(res$log2FoldChange),])
+
