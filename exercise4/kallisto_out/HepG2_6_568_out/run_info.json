@@ -1,0 +1,13 @@
+{
+	"n_targets": 199324,
+	"n_bootstraps": 0,
+	"n_processed": 29870197,
+	"n_pseudoaligned": 27419297,
+	"n_unique": 7078580,
+	"p_pseudoaligned": 91.8,
+	"p_unique": 23.7,
+	"kallisto_version": "0.46.1",
+	"index_version": 10,
+	"start_time": "Wed Jun  8 10:31:10 2022",
+	"call": "kallisto quant -i gencode_v26_kallisto.index -o HepG2_6_568_out -t 8 --single -l 200 -s 20 HepG2_6_568/170922_SN7001355_0116_BCAW6VACXX/L004/HepG2_6_568_TAGCTT_L004_R1_001_trimmed.fq.gz HepG2_6_568/170922_SN7001355_0116_BCAW6VACXX/L005/HepG2_6_568_TAGCTT_L005_R1_001_trimmed.fq.gz HepG2_6_568/170922_SN7001355_0116_BCAW6VACXX/L004/HepG2_6_568_TAGCTT_L004_R1_002_trimmed.fq.gz HepG2_6_568/170922_SN7001355_0116_BCAW6VACXX/L005/HepG2_6_568_TAGCTT_L005_R1_002_trimmed.fq.gz HepG2_6_568/170922_SN7001355_0116_BCAW6VACXX/L004/HepG2_6_568_TAGCTT_L004_R1_003_trimmed.fq.gz HepG2_6_568/170922_SN7001355_0116_BCAW6VACXX/L005/HepG2_6_568_TAGCTT_L005_R1_003_trimmed.fq.gz HepG2_6_568/170922_SN7001355_0116_BCAW6VACXX/L004/HepG2_6_568_TAGCTT_L004_R1_004_trimmed.fq.gz HepG2_6_568/170922_SN7001355_0116_BCAW6VACXX/L005/HepG2_6_568_TAGCTT_L005_R1_004_trimmed.fq.gz"
+}
