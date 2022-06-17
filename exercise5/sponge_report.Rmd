@@ -1,0 +1,105 @@
+---
+title: "Exercise05_noncodingRNA"
+author: "Your Name and Group"
+date: "6/9/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+# Exercise 05 - noncoding RNA
+
+This is where the exercise starts. You can also delete the chunks above in your final version.
+
+```{r}
+# some setups
+set.seed(123)
+
+# load libraries
+library(SPONGE)
+library(data.table)
+library(doParallel)
+library(foreach)
+library(dplyr)
+
+# parallelization
+num.of.cores <- 4
+cl <- makeCluster(num.of.cores) 
+registerDoParallel(cl)
+```
+
+## a) Data acquisition and preparation 
+
+```{r}
+#insert code here
+```
+
+## b) Sponge modules 
+
+```{r}
+ceRNA_interactions <- data.table::fread('testicular_germ_cell_tumor_networkInteractions_full.csv') 
+network_centralities <- data.table::fread('testicular_germ_cell_tumor_networkAnalysis.csv')
+
+colnames(ceRNA_interactions)[which(colnames(ceRNA_interactions) == 'GeneA')] <- 'geneA'
+colnames(ceRNA_interactions)[which(colnames(ceRNA_interactions) == 'GeneB')] <- 'geneB'
+
+#insert code here
+```
+
+## c) Module enrichment + Machine learning
+
+```{r}
+#insert code here
+```
+
+```{r}
+print(paste0('Sensitivity: ',0))
+print(paste0('Specificity: ',0))
+print(paste0('Balanced Accuracy: ',0))
+```
+## d) Visualisation and Interpretation
+
+```{r}
+#insert code here
+```
+
+```{r}
+#next plot
+```
+I can interpret this plot!
+
+```{r}
+#one more plot?
+```
+this is more difficult..
+
+```{r}
+#wow, another one! 
+```
+I really want these bonus points!
+
+```{r}
+#this is getting out of hand...
+```
