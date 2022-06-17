@@ -33,7 +33,10 @@ registerDoParallel(cl)
 ## a) Data acquisition and preparation 
 
 ```{r}
-#insert code here
+load("oldCohort.RData")
+genexp <- tgct_oldCohort_gene_expression
+meta <- tgct_oldCohort_metaData
+mirna <- tgct_oldCohort_miRNA_expression
 ```
 
 ## b) Sponge modules 
