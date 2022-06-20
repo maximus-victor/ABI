@@ -86,3 +86,8 @@ I really want these bonus points!
 ```{r}
 #this is getting out of hand...
 ```
+
+```{r}
+#stop your backend parallelisation if registered
+stopCluster(cl) 
+```
