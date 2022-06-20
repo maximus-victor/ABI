@@ -37,6 +37,7 @@ load("oldCohort.RData")
 genexp <- tgct_oldCohort_gene_expression
 meta <- tgct_oldCohort_metaData
 mirna <- tgct_oldCohort_miRNA_expression
+#TODO test/train split
 ```
 
 ## b) Sponge modules 
@@ -48,7 +49,14 @@ network_centralities <- data.table::fread('testicular_germ_cell_tumor/testicular
 colnames(ceRNA_interactions)[which(colnames(ceRNA_interactions) == 'GeneA')] <- 'geneA'
 colnames(ceRNA_interactions)[which(colnames(ceRNA_interactions) == 'GeneB')] <- 'geneB'
 
-#insert code here
+# untested
+filtered_network_centralities <- filter_ceRNA_network(
+	sponge_effects = ceRNA_interactions,
+	Node_Centrality = network_centralities,
+	add_weighted_centrality=T,
+	mscor.threshold = 0.01,
+	padj.threshold = 0.1)
+
 ```
 
 ## c) Module enrichment + Machine learning
