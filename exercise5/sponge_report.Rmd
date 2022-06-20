@@ -42,8 +42,8 @@ mirna <- tgct_oldCohort_miRNA_expression
 ## b) Sponge modules 
 
 ```{r}
-ceRNA_interactions <- data.table::fread('testicular_germ_cell_tumor_networkInteractions_full.csv') 
-network_centralities <- data.table::fread('testicular_germ_cell_tumor_networkAnalysis.csv')
+ceRNA_interactions <- data.table::fread('testicular_germ_cell_tumor/testicular_germ_cell_tumor_networkInteractions_full.csv') 
+network_centralities <- data.table::fread('testicular_germ_cell_tumor/testicular_germ_cell_tumor_networkAnalysis.csv')
 
 colnames(ceRNA_interactions)[which(colnames(ceRNA_interactions) == 'GeneA')] <- 'geneA'
 colnames(ceRNA_interactions)[which(colnames(ceRNA_interactions) == 'GeneB')] <- 'geneB'
