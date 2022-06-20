@@ -49,6 +49,12 @@ network_centralities <- data.table::fread('testicular_germ_cell_tumor/testicular
 colnames(ceRNA_interactions)[which(colnames(ceRNA_interactions) == 'GeneA')] <- 'geneA'
 colnames(ceRNA_interactions)[which(colnames(ceRNA_interactions) == 'GeneB')] <- 'geneB'
 
+knitr::kable(network_centralities)
+knitr::kable(ceRNA_interactions)
+knitr::kable(genexp)
+knitr::kable(meta)
+knitr::kable(mirna)
+
 # untested
 filtered_network_centralities <- filter_ceRNA_network(
 	sponge_effects = ceRNA_interactions,
@@ -56,6 +62,11 @@ filtered_network_centralities <- filter_ceRNA_network(
 	add_weighted_centrality=T,
 	mscor.threshold = 0.01,
 	padj.threshold = 0.1)
+
+#Sponge.modules <- define_modules(network = filtered_network_centralities$Sponge.filtered,
+#	central.modules = central_gene_modules,
+#	remove.central = F,
+#	set.parallel = F)
 
 ```
 
