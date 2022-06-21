@@ -95,13 +95,34 @@ Size.modules <- sapply(Sponge.modules, length)
 ## c) Module enrichment + Machine learning
 
 ```{r}
-#insert code here
+gc() # Call garbage collector to free some RAM
+train.modules <- enrichment_modules(Expr.matrix = genexp_train, modules = Sponge.modules, bin.size = 10, min.size = 1, max.size = 2000, min.expr = 1, method = "OE", cores=1)
+
+gc() # Call garbage collector to free some RAM
+test.modules <-  enrichment_modules(Expr.matrix = genexp_test, modules = Sponge.modules, bin.size = 10, min.size = 1, max.size = 2000, min.expr = 1, method = "OE", cores=1)
+
+gc() # Call garbage collector to free some RAM
+
+common_modules = intersect(rownames(train.modules), rownames(test.modules))
+train.modules = train.modules[common_modules, ]
+test.modules = test.modules[common_modules, ]
+
+trained.model = calibrate_model(Input = train.modules, modules_metadata = train_meta, label = "SUBTYPE", sampleIDs = "sampleID",Metric = "Exact_match", n_folds = 2, repetitions = 1)
+
 ```
 
 ```{r}
-print(paste0('Sensitivity: ',0))
-print(paste0('Specificity: ',0))
-print(paste0('Balanced Accuracy: ',0))
+
+Input.test <- t(test.modules) %>% scale(center = T, scale = T)
+Prediction.model <- predict(trained.model$Model, Input.test)
+
+# We compute the confusion metrix [sic] on the test set
+ConfusionMatrix_testing <- caret::confusionMatrix(as.factor(Prediction.model), as.factor(test_meta$SUBTYPE))
+trained.model$ConfusionMatrix_testing<-ConfusionMatrix_testing
+
+print(paste0('Sensitivity: ', ConfusionMatrix_testing$byClass[["Specificity"]]))
+print(paste0('Specificity: ', ConfusionMatrix_testing$byClass[["Sensitivity"]]))
+print(paste0('Balanced Accuracy: ', ConfusionMatrix_testing$byClass[["Balanced Accuracy"]]))
 ```
 ## d) Visualisation and Interpretation
 
