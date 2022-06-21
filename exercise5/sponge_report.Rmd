@@ -39,7 +39,6 @@ load("oldCohort.RData")
 genexp <- tgct_oldCohort_gene_expression
 meta <- tgct_oldCohort_metaData
 mirna <- tgct_oldCohort_miRNA_expression
-#TODO test/train split
 
 train_idx <- createDataPartition(
   y = meta$SUBTYPE,
@@ -78,10 +77,18 @@ filtered_network_centralities <- filter_ceRNA_network(
 	mscor.threshold = 0.01,
 	padj.threshold = 0.1)
 
-#Sponge.modules <- define_modules(network = filtered_network_centralities$Sponge.filtered,
-#	central.modules = central_gene_modules,
-#	remove.central = F,
-#	set.parallel = F)
+RNAs <- c("lncRNA","protein_coding")
+RNAs.ofInterest <- ensembl.df %>% dplyr::filter(gene_biotype %in% RNAs) %>%
+  dplyr::select(ensembl_gene_id)
+
+central_gene_modules <- get_central_modules(central_nodes = RNAs.ofInterest$ensembl_gene_id,node_centrality = filtered_network_centralities$Node_Centrality, ceRNA_class = RNAs, centrality_measure = "Weighted_Degree", cutoff = 10)
+
+Sponge.modules <- define_modules(network = filtered_network_centralities$Sponge.filtered,
+	central.modules = central_gene_modules,
+	remove.central = F,
+	set.parallel = F)
+
+Size.modules <- sapply(Sponge.modules, length)
 
 ```
 
