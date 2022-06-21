@@ -141,13 +141,6 @@ plot_heatmaps(trained_model = trained.model,spongEffects = train.modules,
 ```
 Die Samples lassen sich gut in die Gruppen NonSeminoma und Seminoma clustern
 ```{r}
-plot_involved_miRNAs_to_modules(sponge_modules=Sponge.modules,
-                                trained_model=trained.model,
-                                gene_mirna_candidates= train_genes_miRNA_candidates,
-                                k_modules = 2,
-                                filter_miRNAs = 0.0,
-                                bioMart_gene_symbol_columns = "hgnc_symbol",
-                                bioMart_gene_ensembl = "hsapiens_gene_ensembl")
 ```
 I really want these bonus points!
 
