@@ -127,16 +127,18 @@ print(paste0('Balanced Accuracy: ', ConfusionMatrix_testing$byClass[["Balanced A
 ## d) Visualisation and Interpretation
 
 ```{r}
-#insert code here
+plot_top_modules(trained_model=trained.model, k_modules_red = 2, k_modules = 4)
 ```
 
 ```{r}
-#next plot
+plot_density_scores(trained_model=trained.model,spongEffects = train.modules, meta_data = train_meta, label = "SUBTYPE", sampleIDs = "sampleID")
 ```
 I can interpret this plot!
 
 ```{r}
-#one more plot?
+plot_heatmaps(trained_model = trained.model,spongEffects = train.modules,
+               meta_data = train_meta, label = "SUBTYPE", sampleIDs = "sampleID",Modules_to_Plot = 2,
+              show.rownames = F, show.colnames = F)
 ```
 this is more difficult..
 
