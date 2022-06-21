@@ -77,7 +77,7 @@ filtered_network_centralities <- filter_ceRNA_network(
 	mscor.threshold = 0.01,
 	padj.threshold = 0.1)
 
-RNAs <- c("lncRNA","protein_coding")
+RNAs <- c("lncRNA")
 RNAs.ofInterest <- ensembl.df %>% dplyr::filter(gene_biotype %in% RNAs) %>%
   dplyr::select(ensembl_gene_id)
 
@@ -129,21 +129,25 @@ print(paste0('Balanced Accuracy: ', ConfusionMatrix_testing$byClass[["Balanced A
 ```{r}
 plot_top_modules(trained_model=trained.model, k_modules_red = 2, k_modules = 4)
 ```
-
+Der Plot zeigt die Modules, welche am meisten zum Ergebnis beitragen
 ```{r}
 plot_density_scores(trained_model=trained.model,spongEffects = train.modules, meta_data = train_meta, label = "SUBTYPE", sampleIDs = "sampleID")
 ```
-I can interpret this plot!
-
+NonSeminoma folgt nicht einer Normalverteilung. Dies weißt darauf hin, dass es innerhalb der Klasse unterschiede gibt (zB. verschiedene Subtypen)
 ```{r}
 plot_heatmaps(trained_model = trained.model,spongEffects = train.modules,
                meta_data = train_meta, label = "SUBTYPE", sampleIDs = "sampleID",Modules_to_Plot = 2,
               show.rownames = F, show.colnames = F)
 ```
-this is more difficult..
-
+Die Samples lassen sich gut in die Gruppen NonSeminoma und Seminoma clustern
 ```{r}
-#wow, another one! 
+plot_involved_miRNAs_to_modules(sponge_modules=Sponge.modules,
+                                trained_model=trained.model,
+                                gene_mirna_candidates= train_genes_miRNA_candidates,
+                                k_modules = 2,
+                                filter_miRNAs = 0.0,
+                                bioMart_gene_symbol_columns = "hgnc_symbol",
+                                bioMart_gene_ensembl = "hsapiens_gene_ensembl")
 ```
 I really want these bonus points!
 
