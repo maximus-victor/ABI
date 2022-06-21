@@ -24,6 +24,8 @@ library(doParallel)
 library(foreach)
 library(dplyr)
 
+library(caret)
+
 # parallelization
 num.of.cores <- 8
 cl <- makeCluster(num.of.cores) 
@@ -38,6 +40,19 @@ genexp <- tgct_oldCohort_gene_expression
 meta <- tgct_oldCohort_metaData
 mirna <- tgct_oldCohort_miRNA_expression
 #TODO test/train split
+
+train_idx <- createDataPartition(
+  y = meta$SUBTYPE,
+  p = .5,
+  list = FALSE
+)
+
+train_meta = meta[train_idx,]
+test_meta = meta[-train_idx,]
+
+genexp_train = genexp[, train_meta$sampleID]
+genexp_test = genexp[, test_meta$sampleID]
+
 ```
 
 ## b) Sponge modules 
