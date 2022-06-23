@@ -1,0 +1,56 @@
+---
+title: "4_Seurat"
+output: html_document
+date: '2022-06-23'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Initialisation (a)
+```{r}
+library(Seurat)
+
+# Read in the expression matrix The first row is a header row, the first column is rownames
+exp.mat <- read.table(file = "cell_cycle_vignette_files/nestorawa_forcellcycle_expressionMatrix.txt", header = TRUE,
+    as.is = TRUE, row.names = 1)
+
+# A list of cell cycle markers, from Tirosh et al, 2015, is loaded with Seurat.  We can
+# segregate this list into markers of G2/M phase and markers of S phase
+s.genes <- cc.genes$s.genes
+g2m.genes <- cc.genes$g2m.genes
+
+# Create our Seurat object and complete the initalization steps
+marrow <- CreateSeuratObject(counts = exp.mat)
+marrow <- NormalizeData(marrow)
+marrow <- FindVariableFeatures(marrow, selection.method = "vst")
+
+top3 <- head(VariableFeatures(marrow), 3)
+
+plot1 <- VariableFeaturePlot(marrow)
+plot2 <- LabelPoints(plot = plot1, points = top3, repel = TRUE)
+plot2
+
+```
+
+(b)
+```{r}
+marrow <- ScaleData(marrow, features = rownames(marrow))
+marrow <- RunPCA(marrow, features = VariableFeatures(marrow), ndims.print = 6:10, nfeatures.print = 10)
+
+#Continue with c at this point I think
+marrow <- CellCycleScoring(marrow, s.features = s.genes, g2m.features = g2m.genes, set.ident = TRUE)
+marrow <- RunPCA(marrow, features = c(s.genes, g2m.genes))
+marrow <- ScaleData(marrow, vars.to.regress = c("S.Score", "G2M.Score"), features = rownames(marrow))
+marrow <- RunPCA(marrow, features = VariableFeatures(marrow), nfeatures.print = 10)
+
+save.image(file = "seurat_b_workspace.RData") 
+
+```
+
+(c) continue with data from a not from b
+```{r}
+marrow <- RunUMAP(marrow, dims = 1:10)
+DimPlot(marrow, reduction = "umap")
+```
