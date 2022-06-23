@@ -63,12 +63,6 @@ network_centralities <- data.table::fread('testicular_germ_cell_tumor/testicular
 colnames(ceRNA_interactions)[which(colnames(ceRNA_interactions) == 'GeneA')] <- 'geneA'
 colnames(ceRNA_interactions)[which(colnames(ceRNA_interactions) == 'GeneB')] <- 'geneB'
 
-knitr::kable(network_centralities)
-knitr::kable(ceRNA_interactions)
-knitr::kable(genexp)
-knitr::kable(meta)
-knitr::kable(mirna)
-
 # untested
 filtered_network_centralities <- filter_ceRNA_network(
 	sponge_effects = ceRNA_interactions,
@@ -120,9 +114,9 @@ Prediction.model <- predict(trained.model$Model, Input.test)
 ConfusionMatrix_testing <- caret::confusionMatrix(as.factor(Prediction.model), as.factor(test_meta$SUBTYPE))
 trained.model$ConfusionMatrix_testing<-ConfusionMatrix_testing
 
-print(paste0('Sensitivity: ', ConfusionMatrix_testing$byClass[["Specificity"]]))
-print(paste0('Specificity: ', ConfusionMatrix_testing$byClass[["Sensitivity"]]))
-print(paste0('Balanced Accuracy: ', ConfusionMatrix_testing$byClass[["Balanced Accuracy"]]))
+print(paste0('Sensitivity: ', ConfusionMatrix_testing$byClass[["Specificity"]])) #1.0000
+print(paste0('Specificity: ', ConfusionMatrix_testing$byClass[["Sensitivity"]])) #1.0000
+print(paste0('Balanced Accuracy: ', ConfusionMatrix_testing$byClass[["Balanced Accuracy"]])) #1.0000
 ```
 ## d) Visualisation and Interpretation
 
