@@ -1,7 +1,7 @@
 ---
 title: "4_Seurat"
 output: html_document
-date: '2022-06-23'
+date: '2022-06-24'
 ---
 
 ```{r setup, include=FALSE}
@@ -38,6 +38,7 @@ plot2
 ```{r}
 marrow <- ScaleData(marrow, features = rownames(marrow))
 marrow <- RunPCA(marrow, features = VariableFeatures(marrow), ndims.print = 6:10, nfeatures.print = 10)
+marrow.orig <- marrow
 
 #Continue with c at this point I think
 marrow <- CellCycleScoring(marrow, s.features = s.genes, g2m.features = g2m.genes, set.ident = TRUE)
@@ -46,11 +47,18 @@ marrow <- ScaleData(marrow, vars.to.regress = c("S.Score", "G2M.Score"), feature
 marrow <- RunPCA(marrow, features = VariableFeatures(marrow), nfeatures.print = 10)
 
 save.image(file = "seurat_b_workspace.RData") 
-
 ```
 
 (c) continue with data from a not from b
 ```{r}
-marrow <- RunUMAP(marrow, dims = 1:10)
-DimPlot(marrow, reduction = "umap")
+marrow.orig <- RunUMAP(marrow.orig, dims = 1:10)
+UMAPPlot(marrow.orig)
+```
+
+(d) Clustering
+```{r}
+marrow.orig
+marrow.orig <- FindNeighbors(marrow.orig)
+marrow.orig <- FindClusters(marrow.orig, resolution = 1)
+UMAPPlot(marrow.orig, group.by = "seurat_clusters")
 ```
