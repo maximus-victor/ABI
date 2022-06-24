@@ -65,5 +65,7 @@ UMAPPlot(marrow.orig, group.by = "seurat_clusters")
 
 (e) Differential expression analysis
 ```{r}
-all.markers <- FindAllMarkers(marrrow.orig)
+all.markers <- FindAllMarkers(marrow.orig)
+diff.expr <- all.markers[['gene']] %in% g2m.genes
+g2m.expr <- all.markers[diff.expr,]
 ```
