@@ -62,3 +62,8 @@ marrow.orig <- FindNeighbors(marrow.orig)
 marrow.orig <- FindClusters(marrow.orig, resolution = 1)
 UMAPPlot(marrow.orig, group.by = "seurat_clusters")
 ```
+
+(e) Differential expression analysis
+```{r}
+all.markers <- FindAllMarkers(marrrow.orig)
+```
