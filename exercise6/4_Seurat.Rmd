@@ -13,7 +13,8 @@ Initialisation (a)
 library(Seurat)
 
 # Read in the expression matrix The first row is a header row, the first column is rownames
-exp.mat <- read.table(file = "cell_cycle_vignette_files/nestorawa_forcellcycle_expressionMatrix.txt", header = TRUE,
+#exp.mat <- read.table(file = "cell_cycle_vignette_files/nestorawa_forcellcycle_expressionMatrix.txt", header = TRUE,
+exp.mat <- read.table(file = "nestorawa_forcellcycle_expressionMatrix.txt", header = TRUE,
     as.is = TRUE, row.names = 1)
 
 # A list of cell cycle markers, from Tirosh et al, 2015, is loaded with Seurat.  We can
@@ -68,4 +69,7 @@ UMAPPlot(marrow.orig, group.by = "seurat_clusters")
 all.markers <- FindAllMarkers(marrow.orig)
 diff.expr <- all.markers[['gene']] %in% g2m.genes
 g2m.expr <- all.markers[diff.expr,]
+all.markers
+diff.expr
+g2m.expr
 ```
