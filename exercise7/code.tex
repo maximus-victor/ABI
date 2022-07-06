@@ -1,0 +1,41 @@
+\documentclass[11pt, a4paper]{article}
+
+\usepackage[bottom=3 cm, top=3 cm, left=2 cm, right=3 cm]{geometry}
+
+\usepackage{fontspec}
+\setmainfont{Linux Biolinum}
+\setmonofont{Fira Code}
+
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{
+	language=Python,
+	basicstyle=\ttfamily,
+	numbers=left,
+	numberstyle=\tiny,
+	frame=tb,
+	tabsize=4,
+	columns=fixed,
+	showstringspaces=false,
+	showtabs=false,
+	breaklines=true,
+	%keepspaces,
+	commentstyle=\color{gray},
+	keywordstyle=\color{orange}
+	}
+
+
+\begin{document}
+\texttt{>cat scripts.py}
+\lstinputlisting[language=python]{scripts.py}
+\vspace{4em}
+
+\texttt{>./scripts.py p00533-1.fasta}
+\begin{lstlisting}
+digests: 82
+no wt filter: 122
+fragment masses: ([150.05879000000002, 221.09590000000003, 334.17995999999994, 448.22288999999995, 585.2818000000001, 686.3294800000001, 743.3509400000002, 872.3935300000002, 1000.4884900000002], [147.11326, 276.15584999999993, 333.1773099999999, 434.22498999999993, 571.2839, 685.32683, 798.41089, 869.448, 1000.48849])
+
+\end{lstlisting}
+
+\end{document}
