@@ -37,7 +37,7 @@ def mass(seq):
         return 0
     return sum(map(lambda x: aa_mono_masses[x], seq)) + 3*1.0078 + 15.9949 # add one H2O and one H
 
-def fragmass(fragseq):
+def fragmass(fragseq, split=False):
     # b fragments
     bfrags = [0] * len(fragseq)
     acc = 0
@@ -54,7 +54,7 @@ def fragmass(fragseq):
         yfrags[ind] = acc + 3*1.0078 + 15.9949 # add one H2O and one H, 
         # - 0.000548579909 # subtract one electron
 
-    return (bfrags, yfrags)
+    return (bfrags, yfrags) if split else bfrags + yfrags
 
 if __name__ == '__main__':
     with open(sys.argv[1], 'r') as f:
