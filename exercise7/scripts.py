@@ -56,13 +56,13 @@ def fragmass(fragseq):
 
     return (bfrags, yfrags)
 
-
-with open(sys.argv[1], 'r') as f:
-    f.readline()
-    seq = functools.reduce(lambda x, y: x + y, [x.strip() for x in f.readlines()])
-    #print(seq)
-    print("digests:", len(trypticdigest(seq)))
-    print("no wt filter:", len(trypticdigest(seq, minwt=0)))
-    print("fragment masses:", fragmass('MAINHTGEK'))
+if __name__ == '__main__':
+    with open(sys.argv[1], 'r') as f:
+        f.readline()
+        seq = functools.reduce(lambda x, y: x + y, [x.strip() for x in f.readlines()])
+        #print(seq)
+        print("digests:", len(trypticdigest(seq)))
+        print("no wt filter:", len(trypticdigest(seq, minwt=0)))
+        print("fragment masses:", fragmass('MAINHTGEK'))
 
 
