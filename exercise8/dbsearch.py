@@ -58,5 +58,5 @@ if __name__ == '__main__':
     import sys
     df = pd.read_csv(sys.argv[2])
     print("matching", sys.argv[1], "to", sys.argv[2])
-    print(match_spectrum(fragmass(sys.argv[1]), df, ppm=1000))
+    print(match_spectrum(fragmass(sys.argv[1]), df, ppm=20))
 
