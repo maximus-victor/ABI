@@ -43,7 +43,7 @@ def fragmass(fragseq, split=False):
     acc = 0
     for ind, aa in enumerate(fragseq):
         acc += aa_mono_masses[aa] # avoid recalculating the fragment by caching the value
-        bfrags[ind] = acc + 3*1.0078 + 15.9949 # add one H2O and one H
+        bfrags[ind] = acc + 1.0078 -0.00048 # add one p
         # - 0.000548579909 # subtract one electron # i think thats not included in the proton mass?
 
     # y fragments
@@ -51,12 +51,14 @@ def fragmass(fragseq, split=False):
     acc = 0
     for ind, aa in enumerate(fragseq[::-1]):
         acc += aa_mono_masses[aa] # avoid recalculating the fragment by caching the value
-        yfrags[ind] = acc + 3*1.0078 + 15.9949 # add one H2O and one H, 
+        yfrags[ind] = acc + 3*1.0078 - 0.0004 + 15.9949 # add one H2O and p, 
         # - 0.000548579909 # subtract one electron
 
     return (bfrags, yfrags) if split else bfrags + yfrags
 
 if __name__ == '__main__':
+    print(fragmass('MAINHTGEK', True))
+    exit()
     with open(sys.argv[1], 'r') as f:
         f.readline()
         seq = functools.reduce(lambda x, y: x + y, [x.strip() for x in f.readlines()])
