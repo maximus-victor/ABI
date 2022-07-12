@@ -1,0 +1,42 @@
+\documentclass[11pt, a4paper]{article}
+
+\usepackage[bottom=3 cm, top=3 cm, left=2 cm, right=3 cm]{geometry}
+
+\usepackage{fontspec}
+\setmainfont{Linux Biolinum}
+\setmonofont{Fira Code}
+
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{
+	language=Python,
+	basicstyle=\ttfamily,
+	numbers=left,
+	numberstyle=\tiny,
+	frame=tb,
+	tabsize=4,
+	columns=fixed,
+	showstringspaces=false,
+	showtabs=false,
+	breaklines=true,
+	%keepspaces,
+	commentstyle=\color{gray},
+	keywordstyle=\color{orange}
+	}
+
+
+\begin{document}
+
+\texttt{>cat dbsearch.py}
+\lstinputlisting[language=python]{dbsearch.py}
+\vspace{4em}
+
+\texttt{\$./dbsearch.py ./Q13740.fasta ./exspec.csv}
+\begin{lstlisting}
+matching LHVPLEAGVVLLFK to ./exspec.csv
+10
+identifying best-matching peptide from ./Q13740.fasta i ./exspec.csv
+(11, 'VLHPLEGAVVIIFK')
+\end{lstlisting}
+
+\end{document}

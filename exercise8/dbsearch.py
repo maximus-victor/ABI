@@ -1,4 +1,5 @@
 #!/bin/python3
+# file containing the code submitted last week, updated to correctly calculate masses
 from scripts import *
 import pandas as pd
 
