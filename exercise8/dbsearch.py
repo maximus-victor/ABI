@@ -29,7 +29,7 @@ def match_spectrum(wtlist, peaks, ppm=20):
     return matching
 
 
-def get_tryptic_peptide(aaseq: str, spectrum: pd.DataFrame):
+def get_tryptic_peptide(aaseq: str, peaks: pd.DataFrame):
     # returns the tryptic peptide of the protein specified by aaseq best fitting the spectrum, supplied as a pandas DF
     tryptics = trypticdigest(aaseq, minwt=0)
 
@@ -46,6 +46,14 @@ def get_tryptic_peptide(aaseq: str, spectrum: pd.DataFrame):
 if __name__ == '__main__':
     import sys
     df = pd.read_csv(sys.argv[2])
-    print("matching", sys.argv[1], "to", sys.argv[2])
-    print(match_spectrum(fragmass(sys.argv[1]), df, ppm=20))
+    seq = 'LHVPLEAGVVLLFK'
+    print("matching", seq, "to", sys.argv[2])
+    print(match_spectrum(fragmass(seq), df, ppm=20))
+
+    print("identifying best-matching peptide from", sys.argv[1], "i", sys.argv[2])
+    with open(sys.argv[1], 'r') as f:
+        f.readline() # skip fasta header
+        seq = ''.join([l.strip() for l in f])
+    print(get_tryptic_peptide(seq, df))
+
 
